@@ -53,7 +53,7 @@ class TicTacToe:
         return True
 
     def is_finished(self, char):
-        # check lines
+        n_occurrences = self.count_moves(char)
         for l in self.table:
             if l.count(char) == 3:
                 self.status = 1
@@ -78,7 +78,29 @@ class TicTacToe:
             self.winner = "Draw"
 
     def count_moves(self, char):
-        return str(self.table).count(char)
+        n = []
+
+        count_lines = []
+        for l in self.table:
+            count_lines.append(str(l).count(char))
+        n.append(count_lines)
+
+        count_columns = []
+        for c in range(3):
+            x = []
+            for l in range(3):
+                x.append(self.table[l][c])
+            count_columns.append(str(x).count(char))
+        n.append(count_columns)
+
+        count_diagonal = []
+        diagonal = [self.table[0][0], self.table[1][1], self.table[2][2]]
+        count_diagonal.append(str(diagonal).count(char))
+        diagonal = [self.table[0][2], self.table[1][1], self.table[2][1]]
+        count_diagonal.append(str(diagonal).count(char))
+        n.append(count_diagonal)
+
+        return n
 
 
 class User:
@@ -102,6 +124,11 @@ class User:
             if easy_movement:
                 break
 
+    def __medium_mode(self, game):
+        print('Making move level "medium"')
+        while True:
+            break
+
     def move(self, game):
         movements = {'user': self.__human_mode, 'easy': self.__easy_mode}
         movements[self.mode](game)
@@ -120,6 +147,7 @@ def gaming(use01, use02):
             break
         user_02.move(game)
         game.print_table()
+        print(game.count_moves('X'))
 
     print(game.winner)
 
