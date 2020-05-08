@@ -1,23 +1,24 @@
 from random import randint
 
+
 class TicTacToe:
     table = []
     status = 0  # status 0 = unfinished, 1 = win, 2 = draw
     winner = ''
-    
+
     def __init__(self, init_table):
         if not init_table:
             self.table = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']]
         else:
             for i in range(0, len(init_table), 3):
-                line = init_table[i:i+3].replace('_', ' ')
+                line = init_table[i:i + 3].replace('_', ' ')
                 self.table.insert(0, list(line))
 
     def print_table(self):
-        print('-'*9)
-        for line in range(len(self.table)-1, -1, -1):
-            print('| '+' '.join(self.table[line])+' |')
-        print('-'*9)
+        print('-' * 9)
+        for line in range(len(self.table) - 1, -1, -1):
+            print('| ' + ' '.join(self.table[line]) + ' |')
+        print('-' * 9)
 
     def make_move(self, coords, char, msg=True):
 
@@ -36,7 +37,7 @@ class TicTacToe:
         y = int(coords[0]) - 1
         x = int(coords[1]) - 1
 
-        if not(-1 < x < 3) or not(-1 < y < 3):
+        if not (-1 < x < 3) or not (-1 < y < 3):
             print("Coordinates should be from 1 to 3!")
             self.is_finished(char)
             return False
@@ -77,29 +78,31 @@ class TicTacToe:
         if self.status == 2:
             self.winner = "Draw"
 
-    def count_moves(self, char):
-        n = []
-
+    def in_lines(self, char):
         count_lines = []
         for l in self.table:
             count_lines.append(str(l).count(char))
-        n.append(count_lines)
+        return count_lines
 
+    def in_columns(self, char):
         count_columns = []
         for c in range(3):
             x = []
             for l in range(3):
                 x.append(self.table[l][c])
             count_columns.append(str(x).count(char))
-        n.append(count_columns)
+        return count_columns
 
+    def in_diagonal(self, char):
         count_diagonal = []
         diagonal = [self.table[0][0], self.table[1][1], self.table[2][2]]
         count_diagonal.append(str(diagonal).count(char))
         diagonal = [self.table[0][2], self.table[1][1], self.table[2][1]]
         count_diagonal.append(str(diagonal).count(char))
-        n.append(count_diagonal)
+        return count_diagonal
 
+    def count_moves(self, char):
+        n = [self.in_lines(char), self.in_columns(char), self.in_diagonal(char)]
         return n
 
 
@@ -116,8 +119,9 @@ class User:
             if user_movement:
                 break
 
-    def __easy_mode(self, game):
-        print('Making move level "easy"')
+    def __easy_mode(self, game, msg=True):
+        if msg:
+            print('Making move level "easy"')
         while True:
             coords = (str(randint(1, 3)), str(randint(1, 3)))
             easy_movement = game.make_move(coords, self.char, False)
@@ -126,11 +130,56 @@ class User:
 
     def __medium_mode(self, game):
         print('Making move level "medium"')
-        while True:
-            break
+        movements = game.count_moves(self.char)
+        print(str(movements))
+        if "2" in str(movements):
+            print(movements)
+            lines = movements[0]
+            columns = movements[1]
+            diagonals = movements[2]
+
+            if 2 in lines:
+                print('2 in line', game.table[p])
+                p = lines.index(2)
+                if " " in game.table[p]:
+                    c = game.table[p].index(" ")
+                    game.make_move((str(p), str(c)), self.char, False)
+                    return
+            if 2 in columns:
+                print('2 in columns')
+                c = columns.index(2)
+                column = [game.table[0][c], game.table[1][c], game.table[2][c]]
+                print('columns', column)
+                if " " in column:
+                    l = column.index(" ")
+                    game.make_move((str(l), str(c)), self.char, False)
+                    return
+            else:
+                print('2 in diagonal')
+                d = diagonals.index(2)
+                if d == 0:
+                    diagonal = [game.table[0][0], game.table[1][1], game.table[2][2]]
+                    print('diagonal', diagonal)
+                    if " " in diagonal:
+                        p = diagonal.index(" ")
+                        game.make_move((str(p),str(p)), self.char, False)
+                        return
+                else:
+                    diagonal = [game.table[0][2], game.table[1][1], game.table[2][0]]
+                    if " " in diagonal:
+                        l = diagonal.index(" ")
+                        if l == 0: c = 2
+                        if l == 1: c = 1
+                        if l == 2: c = 0
+                        game.make_move((str(l), str(c)), self.char, False)
+                        return
+                self.__easy_mode(game, msg=False)
+        else:
+            self.__easy_mode(game, msg=False)
 
     def move(self, game):
-        movements = {'user': self.__human_mode, 'easy': self.__easy_mode}
+        movements = {'user': self.__human_mode, 'easy': self.__easy_mode,
+                     'medium': self.__medium_mode}
         movements[self.mode](game)
 
 
@@ -147,7 +196,6 @@ def gaming(use01, use02):
             break
         user_02.move(game)
         game.print_table()
-        print(game.count_moves('X'))
 
     print(game.winner)
 
