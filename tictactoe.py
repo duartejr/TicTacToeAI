@@ -131,51 +131,40 @@ class User:
     def __medium_mode(self, game):
         print('Making move level "medium"')
         movements = game.count_moves(self.char)
-        print(str(movements))
         if "2" in str(movements):
-            print(movements)
             lines = movements[0]
             columns = movements[1]
             diagonals = movements[2]
 
             if 2 in lines:
-                print('2 in line', game.table[p])
-                p = lines.index(2)
-                if " " in game.table[p]:
-                    c = game.table[p].index(" ")
-                    game.make_move((str(p), str(c)), self.char, False)
+                l = lines.index(2)
+                if ' ' in game.table[l]:
+                    c = game.table[l].index(' ')
+                    game.make_move((str(c+1), str(l+1)), self.char, False)
                     return
             if 2 in columns:
-                print('2 in columns')
                 c = columns.index(2)
                 column = [game.table[0][c], game.table[1][c], game.table[2][c]]
-                print('columns', column)
-                if " " in column:
-                    l = column.index(" ")
-                    game.make_move((str(l), str(c)), self.char, False)
+                if ' ' in column:
+                    l = column.index(' ')
+                    game.make_move((str(c+1), str(l+1)), self.char, False)
                     return
-            else:
-                print('2 in diagonal')
+            if 2 in diagonals:
                 d = diagonals.index(2)
                 if d == 0:
                     diagonal = [game.table[0][0], game.table[1][1], game.table[2][2]]
-                    print('diagonal', diagonal)
-                    if " " in diagonal:
-                        p = diagonal.index(" ")
-                        game.make_move((str(p),str(p)), self.char, False)
-                        return
                 else:
                     diagonal = [game.table[0][2], game.table[1][1], game.table[2][0]]
-                    if " " in diagonal:
-                        l = diagonal.index(" ")
-                        if l == 0: c = 2
-                        if l == 1: c = 1
-                        if l == 2: c = 0
-                        game.make_move((str(l), str(c)), self.char, False)
-                        return
-                self.__easy_mode(game, msg=False)
-        else:
-            self.__easy_mode(game, msg=False)
+                if ' ' in diagonal:
+                    p = diagonal.index(' ')
+                    if d == 0:
+                        l, c = p, p
+                    else:
+                        l, c = p, 2 - p
+                    game.make_move((str(c+1),str(l+1)), self.char, False)
+                    return
+
+        self.__easy_mode(game, msg=False)
 
     def move(self, game):
         movements = {'user': self.__human_mode, 'easy': self.__easy_mode,
