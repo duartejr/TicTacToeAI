@@ -135,7 +135,7 @@ class User:
             columns = movements[1]
             diagonals = movements[2]
 
-            if "2" in lines:
+            if 2 in lines:
                 l = lines.index(2)
                 if ' ' in game.table[l]:
                     c = game.table[l].index(' ')
