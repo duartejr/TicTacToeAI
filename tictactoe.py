@@ -129,40 +129,67 @@ class User:
                 break
 
     def __medium_mode(self, game):
-        print('Making move level "medium"')
-        movements = game.count_moves(self.char)
-        if "2" in str(movements):
+
+        def medium_move(movements, char, game):
             lines = movements[0]
             columns = movements[1]
             diagonals = movements[2]
 
-            if 2 in lines:
+            if "2" in lines:
                 l = lines.index(2)
                 if ' ' in game.table[l]:
                     c = game.table[l].index(' ')
-                    game.make_move((str(c+1), str(l+1)), self.char, False)
-                    return
+                    game.make_move((str(c + 1), str(l + 1)), self.char, False)
+                    return 1
             if 2 in columns:
                 c = columns.index(2)
                 column = [game.table[0][c], game.table[1][c], game.table[2][c]]
                 if ' ' in column:
                     l = column.index(' ')
-                    game.make_move((str(c+1), str(l+1)), self.char, False)
-                    return
+                    game.make_move((str(c + 1), str(l + 1)), self.char, False)
+                    return 1
             if 2 in diagonals:
                 d = diagonals.index(2)
                 if d == 0:
-                    diagonal = [game.table[0][0], game.table[1][1], game.table[2][2]]
+                    diagonal = [game.table[0][0], game.table[1][1],
+                                game.table[2][2]]
                 else:
-                    diagonal = [game.table[0][2], game.table[1][1], game.table[2][0]]
+                    diagonal = [game.table[0][2], game.table[1][1],
+                                game.table[2][0]]
                 if ' ' in diagonal:
                     p = diagonal.index(' ')
                     if d == 0:
                         l, c = p, p
                     else:
                         l, c = p, 2 - p
-                    game.make_move((str(c+1),str(l+1)), self.char, False)
-                    return
+                    game.make_move((str(c + 1), str(l + 1)), self.char, False)
+                    return 1
+            return 0
+
+        print('Making move level "medium"')
+
+        if self.char == 'X':
+            char2 = 'O'
+        else:
+            char2 = 'X'
+
+        if str(game.table).count('O') == str(game.table).count('X'):
+            char1 = self.char
+            if char1 == 'X':
+                char2 = 'O'
+            else:
+                char2 = 'X'
+        else:
+            char1 = char2
+            char2 = self.char
+
+        moves_char1 = game.count_moves(char1)
+        moves_char2 = game.count_moves(char2)
+
+        if medium_move(moves_char1, char1, game):
+            return
+        if medium_move(moves_char2, char2, game):
+            return
 
         self.__easy_mode(game, msg=False)
 
