@@ -1,4 +1,6 @@
 from random import randint
+from math import inf as infinity
+from random import choice
 
 
 class TicTacToe:
@@ -24,14 +26,14 @@ class TicTacToe:
 
         if len(coords) == 1:
             print("You should enter numbers!")
-            self.is_finished(char)
+            self.game_over(char)
             return False
 
         y, x = coords[0], coords[1]
 
         if not x.isdigit() or not y.isdigit():
             print("You should enter numbers!")
-            self.is_finished(char)
+            self.game_over(char)
             return False
 
         y = int(coords[0]) - 1
@@ -39,21 +41,21 @@ class TicTacToe:
 
         if not (-1 < x < 3) or not (-1 < y < 3):
             print("Coordinates should be from 1 to 3!")
-            self.is_finished(char)
+            self.game_over(char)
             return False
 
         if self.table[x][y] != " ":
             if msg:
                 print("This cell is occupied! Choose another one!")
-            self.is_finished(char)
+            self.game_over(char)
             return False
 
         self.table[x][y] = char
-        self.is_finished(char)
+        self.game_over(char)
 
         return True
 
-    def is_finished(self, char):
+    def game_over(self, char):
         n_occurrences = self.count_moves(char)
         for l in self.table:
             if l.count(char) == 3:
@@ -192,6 +194,37 @@ class User:
             return
 
         self.__easy_mode(game, msg=False)
+
+    def __hard_mode(self, game):
+
+        COMP = 1
+        HUMAN = +1
+        pc = self.char
+        human = 'X' if pc == 'O' else 'O'
+
+        def wins(game, player):
+            if game.winner[0] == player:
+                return True
+            return False
+
+        def evaluate(game, pc, human):
+            if wins(game, pc):
+                return 1
+            elif wins(game, pc) == 1:
+                return -1
+            return 0
+
+        def minimax(game, depth, player):
+            if player == COMP:
+                best = [-1, -1, -infinity]
+            else:
+                best = [-1, -1, +infinity]
+
+            if depth == 0 or game.status:
+                score = evaluate(game, pc, human)
+
+
+
 
     def move(self, game):
         movements = {'user': self.__human_mode, 'easy': self.__easy_mode,
