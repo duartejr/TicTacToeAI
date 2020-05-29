@@ -1,5 +1,5 @@
 from random import randint
-from math import inf as infinity
+from math import inf
 from random import choice
 
 
@@ -79,6 +79,8 @@ class TicTacToe:
             self.winner = f"{char} wins"
         if self.status == 2:
             self.winner = "Draw"
+
+        return self.status
 
     def in_lines(self, char):
         count_lines = []
@@ -197,38 +199,34 @@ class User:
 
     def __hard_mode(self, game):
 
-        COMP = 1
-        HUMAN = +1
         pc = self.char
         human = 'X' if pc == 'O' else 'O'
+        best_score = -inf
+        scores = {pc: 1, human: 0, 'draw': 2}
 
-        def wins(game, player):
-            if game.winner[0] == player:
-                return True
-            return False
+        def minimax(board, chr, depth, is_maximizing):
+            result = board.game_over(chr)
+            print(result)
+            scores = 0
 
-        def evaluate(game, pc, human):
-            if wins(game, pc):
-                return 1
-            elif wins(game, pc) == 1:
-                return -1
-            return 0
+            if is_maximizing:
+                pass
+            return 1
 
-        def minimax(game, depth, player):
-            if player == COMP:
-                best = [-1, -1, -infinity]
-            else:
-                best = [-1, -1, +infinity]
-
-            if depth == 0 or game.status:
-                score = evaluate(game, pc, human)
-
-
-
+        for i in range(3):
+            for j in range(3):
+                if game.table[i][j] == ' ':
+                    game.table[i][j] = pc
+                    score = minimax(game, pc, 0, True)
+                    game.table[i][j] = ' '
+                    if score > best_score:
+                        best_score = score
+                        best_move = (str(j+1), str(i+1))
+        game.make_move(best_move, pc)
 
     def move(self, game):
         movements = {'user': self.__human_mode, 'easy': self.__easy_mode,
-                     'medium': self.__medium_mode}
+                     'medium': self.__medium_mode, 'hard': self.__hard_mode}
         movements[self.mode](game)
 
 
