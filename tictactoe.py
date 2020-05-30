@@ -1,6 +1,5 @@
 from random import randint
 from math import inf
-from random import choice
 
 
 class TicTacToe:
@@ -68,7 +67,6 @@ class TicTacToe:
         return 0
 
     def game_over(self, char):
-        n_occurrences = self.count_moves(char)
         if self.is_winner(char):
             self.status = 1
             self.winner = char
@@ -104,8 +102,15 @@ class TicTacToe:
         return count_diagonal
 
     def count_moves(self, char):
-        n = [self.check_lines(char), self.check_columns(char), self.check_diagonal(char)]
+        n = [self.check_lines(char), self.check_columns(char),
+             self.check_diagonal(char)]
         return n
+
+    def print_winner(self):
+        if self.winner == 'Draw':
+            print(self.winner)
+        else:
+            print(f'{self.winner} wins')
 
 
 class User:
@@ -196,12 +201,14 @@ class User:
         self.__easy_mode(game, msg=False)
 
     def __hard_mode(self, game):
+        print('Making move level "hard"')
         pc = self.char
         human = 'X' if pc == 'O' else 'O'
-        best_scor = -inf
+        best_score = -inf
 
         def minimax(board, chr, depth, is_maximizing):
             scores = {pc: 1, human: -1, 'Draw': 0}
+            board.game_over(chr)
             result = board.winner
             if result != '':
                 return scores[result]
@@ -212,9 +219,8 @@ class User:
                     for j in range(3):
                         if board.table[i][j] == ' ':
                             board.table[i][j] = pc
-                            score = minimax(board, pc, depth+1, False)
+                            score = minimax(board, pc, depth + 1, False)
                             board.table[i][j] = ' '
-                            print('score do maximinzing', score)
                             best_score = max(score, best_score)
                 return best_score
             else:
@@ -225,7 +231,6 @@ class User:
                             board.table[i][j] = human
                             score = minimax(board, human, depth + 1, True)
                             board.table[i][j] = ' '
-                            print('score do minimizing', score)
                             best_score = min(score, best_score)
                 return best_score
 
@@ -234,12 +239,10 @@ class User:
                 if game.table[i][j] == ' ':
                     game.table[i][j] = pc
                     score = minimax(game, pc, 0, False)
-                    print(score)
                     game.table[i][j] = ' '
-                    if score > best_scor:
-                        best_scor = score
-                        best_move = (str(j+1), str(i+1))
-                        print(best_scor)
+                    if score > best_score:
+                        best_score = score
+                        best_move = (str(j + 1), str(i + 1))
         game.make_move(best_move, pc)
 
     def move(self, game):
@@ -261,10 +264,8 @@ def gaming(use01, use02):
             break
         user_02.move(game)
         game.print_table()
-        if game.status != -1:
-            break
 
-    print(game.winner)
+    game.print_winner()
 
 
 while True:
