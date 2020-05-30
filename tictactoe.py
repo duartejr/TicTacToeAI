@@ -71,12 +71,13 @@ class TicTacToe:
         n_occurrences = self.count_moves(char)
         if self.is_winner(char):
             self.status = 1
-            self.winner = char + " Wins"
+            self.winner = char
         elif self.is_draw():
             self.status = 0
             self.winner = "Draw"
         else:
             self.status = -1
+            self.winner = ""
         return self.status
 
     def check_lines(self, char):
@@ -98,7 +99,7 @@ class TicTacToe:
         count_diagonal = []
         diagonal = [self.table[0][0], self.table[1][1], self.table[2][2]]
         count_diagonal.append(str(diagonal).count(char))
-        diagonal = [self.table[0][2], self.table[1][1], self.table[2][1]]
+        diagonal = [self.table[0][2], self.table[1][1], self.table[2][0]]
         count_diagonal.append(str(diagonal).count(char))
         return count_diagonal
 
@@ -197,28 +198,49 @@ class User:
     def __hard_mode(self, game):
         pc = self.char
         human = 'X' if pc == 'O' else 'O'
-        best_score = -inf
-        scores = {pc: 1, human: 0, 'draw': 2}
+        best_scor = -inf
 
         def minimax(board, chr, depth, is_maximizing):
-            result = board.game_over(chr)
-            scores = 0
+            scores = {pc: 1, human: -1, 'Draw': 0}
+            result = board.winner
+            if result != '':
+                return scores[result]
 
             if is_maximizing:
-                pass
-            return 1
+                best_score = -inf
+                for i in range(3):
+                    for j in range(3):
+                        if board.table[i][j] == ' ':
+                            board.table[i][j] = pc
+                            score = minimax(board, pc, depth+1, False)
+                            board.table[i][j] = ' '
+                            print('score do maximinzing', score)
+                            best_score = max(score, best_score)
+                return best_score
+            else:
+                best_score = inf
+                for i in range(3):
+                    for j in range(3):
+                        if board.table[i][j] == ' ':
+                            board.table[i][j] = human
+                            score = minimax(board, human, depth + 1, True)
+                            board.table[i][j] = ' '
+                            print('score do minimizing', score)
+                            best_score = min(score, best_score)
+                return best_score
 
         for i in range(3):
             for j in range(3):
                 if game.table[i][j] == ' ':
                     game.table[i][j] = pc
-                    score = minimax(game, pc, 0, True)
+                    score = minimax(game, pc, 0, False)
+                    print(score)
                     game.table[i][j] = ' '
-                    if score > best_score:
-                        best_score = score
+                    if score > best_scor:
+                        best_scor = score
                         best_move = (str(j+1), str(i+1))
+                        print(best_scor)
         game.make_move(best_move, pc)
-        print(game.status)
 
     def move(self, game):
         movements = {'user': self.__human_mode, 'easy': self.__easy_mode,
