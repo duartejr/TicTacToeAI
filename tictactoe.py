@@ -5,7 +5,7 @@ from random import choice
 
 class TicTacToe:
     table = []
-    status = 0  # status 0 = unfinished, 1 = win, 2 = draw
+    status = -1  # status-1 = unfinished, 1 = win, 0 = draw
     winner = ''
 
     def __init__(self, init_table):
@@ -26,14 +26,12 @@ class TicTacToe:
 
         if len(coords) == 1:
             print("You should enter numbers!")
-            self.game_over(char)
             return False
 
         y, x = coords[0], coords[1]
 
         if not x.isdigit() or not y.isdigit():
             print("You should enter numbers!")
-            self.game_over(char)
             return False
 
         y = int(coords[0]) - 1
@@ -41,13 +39,11 @@ class TicTacToe:
 
         if not (-1 < x < 3) or not (-1 < y < 3):
             print("Coordinates should be from 1 to 3!")
-            self.game_over(char)
             return False
 
         if self.table[x][y] != " ":
             if msg:
                 print("This cell is occupied! Choose another one!")
-            self.game_over(char)
             return False
 
         self.table[x][y] = char
@@ -55,40 +51,41 @@ class TicTacToe:
 
         return True
 
-    def game_over(self, char):
-        n_occurrences = self.count_moves(char)
-        for l in self.table:
-            if l.count(char) == 3:
-                self.status = 1
-        # check columns
-        for i in range(3):
-            if self.table[0][i] == self.table[1][i] == self.table[2][i] == char:
-                self.status = 1
-        # check main diagonal
-        if self.table[0][0] == self.table[1][1] == self.table[2][2] == char:
-            self.status = 1
-        if self.table[0][2] == self.table[1][1] == self.table[2][0] == char:
-            self.status = 1
+    def is_winner(self, char):
+        for check in [self.check_lines(char), self.check_columns(char),
+                      self.check_diagonal(char)]:
+            if 3 in check:
+                self.winner = char
+                return 1
+        return 0
+
+    def is_draw(self):
         n = 0
         for i in self.table:
             n += i.count(" ")
         if n == 0:
-            self.status = 2
+            return 1
+        return 0
 
-        if self.status == 1:
-            self.winner = f"{char} wins"
-        if self.status == 2:
+    def game_over(self, char):
+        n_occurrences = self.count_moves(char)
+        if self.is_winner(char):
+            self.status = 1
+            self.winner = char + " Wins"
+        elif self.is_draw():
+            self.status = 0
             self.winner = "Draw"
-
+        else:
+            self.status = -1
         return self.status
 
-    def in_lines(self, char):
+    def check_lines(self, char):
         count_lines = []
         for l in self.table:
             count_lines.append(str(l).count(char))
         return count_lines
 
-    def in_columns(self, char):
+    def check_columns(self, char):
         count_columns = []
         for c in range(3):
             x = []
@@ -97,7 +94,7 @@ class TicTacToe:
             count_columns.append(str(x).count(char))
         return count_columns
 
-    def in_diagonal(self, char):
+    def check_diagonal(self, char):
         count_diagonal = []
         diagonal = [self.table[0][0], self.table[1][1], self.table[2][2]]
         count_diagonal.append(str(diagonal).count(char))
@@ -106,7 +103,7 @@ class TicTacToe:
         return count_diagonal
 
     def count_moves(self, char):
-        n = [self.in_lines(char), self.in_columns(char), self.in_diagonal(char)]
+        n = [self.check_lines(char), self.check_columns(char), self.check_diagonal(char)]
         return n
 
 
@@ -198,7 +195,6 @@ class User:
         self.__easy_mode(game, msg=False)
 
     def __hard_mode(self, game):
-
         pc = self.char
         human = 'X' if pc == 'O' else 'O'
         best_score = -inf
@@ -206,7 +202,6 @@ class User:
 
         def minimax(board, chr, depth, is_maximizing):
             result = board.game_over(chr)
-            print(result)
             scores = 0
 
             if is_maximizing:
@@ -223,6 +218,7 @@ class User:
                         best_score = score
                         best_move = (str(j+1), str(i+1))
         game.make_move(best_move, pc)
+        print(game.status)
 
     def move(self, game):
         movements = {'user': self.__human_mode, 'easy': self.__easy_mode,
@@ -236,13 +232,15 @@ def gaming(use01, use02):
     game = TicTacToe("")
     game.print_table()
 
-    while game.status == 0:
+    while game.status == -1:
         user_01.move(game)
         game.print_table()
-        if game.status != 0:
+        if game.status != -1:
             break
         user_02.move(game)
         game.print_table()
+        if game.status != -1:
+            break
 
     print(game.winner)
 
